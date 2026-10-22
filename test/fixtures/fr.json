@@ -1,0 +1,17 @@
+{
+  "app": {
+    "greeting": "Bonjour, {nom} !",
+    "save": "",
+    "intro": "Lisez d'abord le guide.",
+    "ok": "OK",
+    "old": "Ancien"
+  },
+  "cart": {
+    "items": "{count, plural, one {# article} other {# articles}",
+    "welcome": "Bon retour, {{user}}",
+    "note": "Total : {amount}"
+  },
+  "msg_one": "{{count}} courriel",
+  "msg_other": "{{count}} courriels",
+  "bye": "Au revoir"
+}

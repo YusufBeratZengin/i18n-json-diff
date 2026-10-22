@@ -1,0 +1,17 @@
+{
+  "app": {
+    "title": "My App",
+    "greeting": "Hello, {name}!",
+    "save": "Save",
+    "intro": "Read the <b>guide</b> first.",
+    "ok": "OK"
+  },
+  "cart": {
+    "items": "{count, plural, one {# item} other {# items}}",
+    "welcome": "Welcome back, {{user}}.",
+    "note": "Total: {amount}"
+  },
+  "msg_one": "{{count}} message",
+  "msg_other": "{{count}} messages",
+  "bye": "Goodbye"
+}

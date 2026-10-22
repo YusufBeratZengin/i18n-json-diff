@@ -1,0 +1,7 @@
+{
+  "app": {
+    "title": "Mon appli",
+    "save": "Enregistrer"
+  },
+  "msg_many": "{{count}} de messages"
+}
