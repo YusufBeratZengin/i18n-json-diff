@@ -85,10 +85,10 @@ test('check: invalid target JSON is reported as an error, invalid source is fata
   const result = cli(['check', join(dir, 'en.json'), join(dir, 'fr.json')]);
   assert.equal(result.code, 1);
   assert.match(result.stdout, /invalid-file/);
-  assert.match(result.stdout, /Expected a string key at line 1, column 11/);
+  assert.match(result.stdout, /Trailing commas are not supported in JSON files \(line 1, column 10\)/);
   const fatal = cli(['check', join(dir, 'fr.json'), join(dir, 'en.json')]);
   assert.equal(fatal.code, 2);
-  assert.match(fatal.stderr, /invalid JSON/);
+  assert.match(fatal.stderr, /Trailing commas are not supported/);
 });
 
 test('config file: ignore and allow lists', () => {

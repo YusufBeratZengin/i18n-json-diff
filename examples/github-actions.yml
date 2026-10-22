@@ -1,0 +1,17 @@
+# Reusable job snippet: your consuming project installs i18n-json-diff as a dev dependency.
+name: Translation checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  translations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx --no-install i18n-diff check locales/en.json 'locales/*.json' --format github
+      - run: npx --no-install i18n-diff stats locales/en.json 'locales/*.json' --min 90

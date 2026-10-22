@@ -1,0 +1,7 @@
+{
+  "title": "Jardin des nuages",
+  "items_one": "{{count}} graine",
+  "items_many": "{{count}} de graines",
+  "items_other": "{{count}} graines",
+  "footer": "Bonne culture !"
+}

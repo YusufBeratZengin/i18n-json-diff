@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible problem with a check, export or merge.
+labels: [bug]
+body:
+  - type: checkboxes
+    id: searched
+    attributes:
+      label: Existing issues
+      options:
+        - label: I searched existing issues.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: i18n-json-diff version
+      description: Run i18n-diff --version.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS and Node.js version
+      description: Include the output of node --version.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Minimal source JSON
+      description: Use synthetic strings only; remove personal data and secrets.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: target
+    attributes:
+      label: Minimal target JSON
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and reproduction steps
+      description: Include flags and any relevant config.
+      render: sh
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output and logs
+      description: Remove personal data and secrets before posting.
+      render: text

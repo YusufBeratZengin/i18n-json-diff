@@ -1,4 +1,13 @@
 /** Output formatters for `check` and `stats`. */
+import path from 'node:path';
+
+function annotationPath(file, cwd = process.cwd()) {
+  const paths = /^[A-Za-z]:[\\/]|^\\\\/.test(file) ? path.win32 : path;
+  const normalized = file.replace(/\\/g, '/');
+  const relative = paths.relative(cwd, paths.resolve(normalized));
+  return (relative !== '..' && !relative.startsWith(`..${paths.sep}`) && !paths.isAbsolute(relative)
+    ? relative : normalized).replace(/\\/g, '/');
+}
 
 export function countIssues(results) {
   let errors = 0;
@@ -74,7 +83,7 @@ export function formatGithub(results) {
       const shown = missing.slice(0, 10).map((issue) => issue.key).join(', ');
       const more = missing.length > 10 ? `, and ${missing.length - 10} more` : '';
       lines.push(
-        `::error file=${escapeProperty(result.file)},title=${escapeProperty('i18n-diff missing')}::${escapeData(
+        `::error file=${escapeProperty(annotationPath(result.file))},title=${escapeProperty('i18n-diff missing')}::${escapeData(
           `${plural(missing.length, 'key')} missing from this translation: ${shown}${more}`,
         )}`,
       );
@@ -84,7 +93,7 @@ export function formatGithub(results) {
       const level = issue.severity === 'error' ? 'error' : 'warning';
       const position = issue.line ? `,line=${issue.line},col=${issue.column}` : '';
       lines.push(
-        `::${level} file=${escapeProperty(result.file)}${position},title=${escapeProperty(`i18n-diff ${issue.code}`)}::${escapeData(
+        `::${level} file=${escapeProperty(annotationPath(issue.file ?? result.file))}${position},title=${escapeProperty(`i18n-diff ${issue.code}`)}::${escapeData(
           `${issue.key}: ${issue.message}`,
         )}`,
       );
@@ -114,4 +123,31 @@ export function formatStatsText(rows) {
 
 export function formatStatsJson(rows) {
   return `${JSON.stringify({ files: rows }, null, 2)}\n`;
+}
+
+// Escape user-controlled cells so pipes, newlines and HTML cannot break the table.
+const markdownCell = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;').replace(/\\/g, '&#92;').replace(/\|/g, '&#124;')
+  .replace(/`/g, '&#96;').replace(/\r\n|[\r\n]/g, '<br>');
+const markdownRow = (cells) => `| ${cells.map(markdownCell).join(' | ')} |`;
+
+export function formatMarkdown(results, { maxIssues = 200 } = {}) {
+  const lines = ['| File | Key | Check | Message |', '| --- | --- | --- | --- |'];
+  let count = 0;
+  for (const result of results) {
+    for (const issue of result.issues) {
+      if (count++ < maxIssues) lines.push(markdownRow([issue.file ?? result.file, issue.key, issue.code, issue.message]));
+    }
+  }
+  if (count > maxIssues) lines.push('', `... and ${count - maxIssues} more`);
+  return `${lines.join('\n')}\n`;
+}
+
+export function formatStatsMarkdown(rows) {
+  return `${[
+    markdownRow(['File', 'Locale', 'Translated', 'Missing', 'Empty', 'Untranslated', 'Extra', 'Complete']),
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
+    ...rows.map((row) => markdownRow([row.file, row.locale ?? '-', `${row.translated}/${row.expected}`,
+      row.missing, row.empty, row.untranslated, row.extra, `${row.percent.toFixed(1)}%`])),
+  ].join('\n')}\n`;
 }

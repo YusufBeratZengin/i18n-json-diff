@@ -31,7 +31,7 @@ test('accepts a leading byte order mark', () => {
 
 test('rejects invalid documents with a position', () => {
   const cases = [
-    ['{"a": 1,}', /Expected a string key at line 1, column 9/],
+    ['{"a": 1,}', /Trailing commas are not supported in JSON files at line 1, column 8/],
     ['{"a" 1}', /Expected ':'/],
     ['{"a": 1', /Expected ',' or '}'/],
     ['{"a": "x', /Unterminated string/],

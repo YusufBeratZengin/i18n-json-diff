@@ -19,6 +19,7 @@ export const SEVERITY = {
   'icu-syntax': 'error',
   'html-tag': 'error',
   'duplicate-key': 'error',
+  'key-collision': 'error',
   'invalid-file': 'error',
   untranslated: 'warning',
   punctuation: 'warning',
@@ -219,11 +220,17 @@ export function compareFiles(source, target, options = {}) {
     add('extra', key, 'Key does not exist in the source', { line: entry.line, column: entry.column });
   }
 
-  for (const duplicate of target.duplicates) {
-    add('duplicate-key', duplicate.key, 'Key is defined more than once', {
-      line: duplicate.line,
-      column: duplicate.column,
-    });
+  for (const file of [source, target]) {
+    for (const duplicate of file.duplicates) {
+      add('duplicate-key', duplicate.key, `Key is defined more than once in ${file.path}`, {
+        line: duplicate.line, column: duplicate.column, file: file.path,
+      });
+    }
+    for (const collision of file.collisions ?? []) {
+      add('key-collision', collision.key, `Different keys flatten to the same path in ${file.path}`, {
+        line: collision.line, column: collision.column, file: file.path,
+      });
+    }
   }
 
   summary.percent = summary.expected === 0 ? 100 : Math.round((summary.translated / summary.expected) * 1000) / 10;

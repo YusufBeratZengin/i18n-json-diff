@@ -1,0 +1,5 @@
+{
+  "sourceLocale": "en",
+  "warningsAsErrors": true,
+  "minCompletion": { "default": 90, "de": 100 }
+}

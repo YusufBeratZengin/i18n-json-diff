@@ -33,6 +33,7 @@ export class JsonSyntaxError extends Error {
     this.offset = offset;
     this.line = line;
     this.column = column;
+    this.reason = message;
   }
 }
 
@@ -57,6 +58,9 @@ export function parseJson(text) {
       const c = text.charCodeAt(i);
       if (c === 32 || c === 9 || c === 10 || c === 13) i++;
       else break;
+    }
+    if (text.startsWith('//', i) || text.startsWith('/*', i)) {
+      fail('Comments are not supported in JSON files');
     }
   };
 
@@ -120,7 +124,10 @@ export function parseJson(text) {
       });
       skipWhitespace();
       if (text[i] === ',') {
+        const comma = i;
         i++;
+        skipWhitespace();
+        if (text[i] === '}') fail('Trailing commas are not supported in JSON files', comma);
         continue;
       }
       if (text[i] === '}') {
@@ -145,7 +152,10 @@ export function parseJson(text) {
       items.push(parseValue(depth + 1));
       skipWhitespace();
       if (text[i] === ',') {
+        const comma = i;
         i++;
+        skipWhitespace();
+        if (text[i] === ']') fail('Trailing commas are not supported in JSON files', comma);
         continue;
       }
       if (text[i] === ']') {

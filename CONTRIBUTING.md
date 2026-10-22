@@ -36,7 +36,28 @@ npm run lint
 
 - Small commits with [Conventional Commits](https://www.conventionalcommits.org/) messages: `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`.
 - Describe what changed and why. Link the issue if there is one.
-- `npm test` and `npm run lint` must pass; CI runs both on Ubuntu and Windows with Node 20 and 22.
+- `npm test` and `npm run lint` must pass; CI runs both on Ubuntu and Windows with Node 20, 22 and 24.
+
+## Releasing
+
+The maintainer publishes through `.github/workflows/release.yml`, triggered by tags matching `v*.*.*`.
+Before the first automated release, configure an npm trusted publisher for owner `YusufBeratZengin`,
+repository `i18n-json-diff`, workflow `release.yml` and environment `npm`. Create the matching GitHub
+environment. The workflow uses Node 24 and npm 11.5.1 or newer for OIDC, with `contents: read`
+and `id-token: write`; no registry token is stored. See [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/).
+If the package does not exist on npm yet, its first publication and trusted-publisher setup are a
+maintainer prerequisite; do not add a token fallback to the workflow.
+
+1. Move the intended CHANGELOG entries from Unreleased to a dated release section.
+2. Bump `package.json` and the lockfile together, following SemVer.
+3. Run `npm ci`, `npm run lint`, `npm test` and `npm pack --dry-run`; review the package file list.
+4. Commit the reviewed release as `chore(release): vX.Y.Z` and create the matching tag.
+5. The maintainer pushes the approved commit and tag. The workflow verifies the version, repeats
+   the checks, then runs `npm publish --provenance --access public`. Monitor the workflow and
+   verify the published package and provenance on npm.
+
+Keep the release unpublished until the trusted publisher is configured. For local performance
+sanity checks, `npm run bench` measures a synthetic 20,000-key check and merge without disk I/O.
 
 ## Reporting bugs
 

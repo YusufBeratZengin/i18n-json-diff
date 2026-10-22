@@ -1,0 +1,4 @@
+{
+  "greeting": "Bonjour, {name} !",
+  "hint": "Choisissez une <b>graine</b>."
+}

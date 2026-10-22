@@ -1,0 +1,8 @@
+{
+  "title": "Cloud Garden",
+  "greeting": "Hello, {name}!",
+  "hint": "Choose a <b>seed</b>.",
+  "items_one": "{{count}} seed",
+  "items_other": "{{count}} seeds",
+  "footer": "Happy growing!"
+}

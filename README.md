@@ -1,16 +1,15 @@
 # i18n-json-diff
 
-[![CI](https://github.com/YusufBeratZengin/i18n-json-diff/actions/workflows/ci.yml/badge.svg)](https://github.com/YusufBeratZengin/i18n-json-diff/actions/workflows/ci.yml)
-[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/YusufBeratZengin/i18n-json-diff/actions/workflows/ci.yml/badge.svg)](https://github.com/YusufBeratZengin/i18n-json-diff/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Node >=20](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/) [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json) [![npm](https://img.shields.io/npm/v/i18n-json-diff)](https://www.npmjs.com/package/i18n-json-diff)
 
-Compare translation JSON files against a source locale. It reports missing, extra, empty and broken keys, and it helps translators fill the gaps without disturbing the file: `merge` inserts new translations as new lines and leaves everything else byte for byte as it was.
+Compare translation JSON files with placeholder/ICU/HTML checks, plural categories per locale via `Intl.PluralRules`, and byte-minimal merge. Zero runtime dependencies; runs locally on Node.js >=20. Install: `npm install --save-dev i18n-json-diff`; try `npx --package i18n-json-diff i18n-diff check locales/en.json locales/fr.json`.
 
-English | [Turkce](README.tr.md)
+English | [Türkçe](README.tr.md)
 
 - Zero runtime dependencies, Node.js 20 or newer, ESM.
 - Works with nested and flat JSON (vue-i18n, i18next, react-intl, Hoppscotch-style files).
 - Understands i18next plural suffixes (`_one`, `_other`, `_few`, ...), ICU MessageFormat, `{{double}}` placeholders and HTML tags.
-- Output as text, JSON, or GitHub Actions annotations.
+- Output as text, JSON, Markdown, or GitHub Actions annotations.
 
 ## Install
 
@@ -20,19 +19,19 @@ npm install --save-dev i18n-json-diff
 npx i18n-json-diff check locales/en.json locales/*.json
 ```
 
-The package is not published to the npm registry yet; until then install from GitHub:
+To install the current GitHub version:
 `npm install --save-dev github:YusufBeratZengin/i18n-json-diff`.
 
 The command is `i18n-diff`.
 
-## Quick start
+## Demo
 
 ```sh
-i18n-diff check locales/en.json locales/fr.json locales/de.json
+node bin/i18n-diff.js check test/fixtures/en.json test/fixtures/fr.json
 ```
 
-```
-fr.json (fr)
+```text
+test/fixtures/fr.json (fr)
   -     error    missing       app.title     Missing key (source: "My App")
   3:5   error    placeholder   app.greeting  Placeholder mismatch: missing {name}; unexpected {nom}
   4:5   error    empty         app.save      Translation is empty
@@ -56,7 +55,7 @@ i18n-diff export-missing locales/en.json locales/fr.json -o todo-fr.json
 
 # 2. translate the values in todo-fr.json (by hand, in a CAT tool, ...)
 
-# 3. put them back; the diff of locales/fr.json shows only added lines
+# 3. put them back; inserting before existing members shows only added lines
 i18n-diff merge locales/fr.json todo-fr.json --source locales/en.json
 
 # 4. verify
@@ -71,7 +70,8 @@ Compares each target with the source and prints the problems. Exit code `1` when
 
 | Option | Meaning |
 |---|---|
-| `--format text\|json\|github` | Output format. `github` prints workflow commands (`::error file=...`); missing keys are collapsed into one annotation per file. |
+| `--format text\|json\|github\|markdown` | Output format; `markdown` produces a PR comment table (file, key, check, message). `github` prints workflow commands (`::error file=...`); missing keys are collapsed into one annotation per file. |
+| `--max-issues <count>` | Maximum rows in Markdown output (default: 200). Further issues appear as `... and N more`; exit status still counts all issues. |
 | `--ignore a,b` | Skip these checks (see the table below). |
 | `--warnings-as-errors` | Exit `1` on warnings too. |
 | `--allow-key <pattern>` | Key that may equal the source text. `*` and `?` are wildcards. Repeatable. |
@@ -100,8 +100,8 @@ Plural forms the target language needs but the source does not have (for example
 Inserts the translations from `filled` (nested or flat) into `target`.
 
 - New keys are placed where they belong according to the source order. With `--source <file>` that order comes from the source; without it, the order of the filled file is used.
-- Indentation (spaces or tabs), line endings (LF or CRLF), a missing trailing newline and a byte order mark are preserved. Existing lines are not re-formatted, so `git diff` only shows added lines.
-- The one unavoidable exception: when a key lands after the last entry of an object, that entry's line gains a comma.
+- Indentation (spaces or tabs), line endings (LF or CRLF), a missing trailing newline and a byte order mark are preserved. Existing lines are not re-formatted; inserting keys before existing members produces only added lines.
+- When a key lands after the last entry of an object, that entry's line gains a comma.
 - Empty values (`""` or `null`) in the target are filled in place. Existing non-empty translations are kept unless you pass `--overwrite`.
 - With `--source`, keys that are not in the source are skipped (plural forms of known plural groups are accepted).
 - A target that does not exist is created.
@@ -117,13 +117,23 @@ Inserts the translations from `filled` (nested or flat) into `target`.
 
 Completion per file.
 
-```
-File     Locale  Translated  Missing  Empty  Untranslated  Extra  Complete
-fr.json  fr      9/12        2        1      1             1      75.0%
-ru.json  ru      13/13       0        0      0             0      100.0%
+```sh
+node bin/i18n-diff.js stats test/fixtures/en.json test/fixtures/fr.json test/fixtures/ru.json
 ```
 
-`--format json` prints the same data as JSON. `--min <percent>` exits `1` when any file is below the threshold, which is handy as a CI gate.
+```text
+File                   Locale  Translated  Missing  Empty  Untranslated  Extra  Complete
+test/fixtures/fr.json  fr      9/12        2        1      1             1      75.0%
+test/fixtures/ru.json  ru      13/13       0        0      0             0      100.0%
+```
+
+| Option | Meaning |
+|---|---|
+| `--format text\|json\|markdown` | Completion as a terminal table, JSON or a PR comment table. |
+| `--sort completion` | Lowest completion first; ties sort by file name. Default: input order. |
+| `--min <percent>` | Exit `1` if any file is below this threshold (0–100). Overrides all config thresholds. |
+
+The config can set `minCompletion` per locale, with a `default` fallback. Completion counts non-empty translations; identical-to-source warnings are shown separately and still count as translated.
 
 ## Checks
 
@@ -135,7 +145,8 @@ ru.json  ru      13/13       0        0      0             0      100.0%
 | `placeholder` | error | The set of placeholders differs from the source: `{name}`, `{{name}}`, `$t(key)`, `@:key`, and arguments nested in ICU plural/select branches. Order is irrelevant. |
 | `icu-syntax` | error | The translation is not valid ICU MessageFormat (unclosed brace, missing `other` branch, bad selector, ...). Not reported when the source itself does not parse. |
 | `html-tag` | error | Tags differ from the source (`<b>`, `</b>`, `<br/>`, `<0>`). Attributes are ignored, so localised `href`s are fine. |
-| `duplicate-key` | error | The same key appears twice in the target file. |
+| `duplicate-key` | error | The same key appears twice in one object in the source or target. |
+| `key-collision` | error | Distinct source or target paths flatten to the same dotted key. |
 | `invalid-file` | error | The target is not valid JSON, or not an object. |
 | `untranslated` | warning | The value is identical to the source. Skipped when both locales share the primary language (`en` and `en-GB`), for values without letters, and for allowlisted keys or values. |
 | `punctuation` | warning | The trailing punctuation class differs (`.`, `!`, `?`, `:`, `;`, `,`, `...`). Full-width, Arabic and Devanagari marks count as their ASCII equivalent. |
@@ -155,11 +166,26 @@ Keys such as `item_one` / `item_other` are treated as a plural group when the so
   "allowValues": ["OK", "Email"],
   "sourceLocale": "en",
   "warningsAsErrors": false,
-  "format": "text"
+  "format": "text",
+  "minCompletion": { "default": 90, "de": 100 }
 }
 ```
 
 Command line options add to the lists in the config file.
+
+| Field | Type / behavior |
+|---|---|
+| `ignore`, `allowKeys`, `allowValues` | Arrays of strings; CLI lists are added. |
+| `sourceLocale` | String, such as `en`. |
+| `warningsAsErrors` | Boolean; default `false`. |
+| `format` | Check output: `text` (default), `json`, `github`, `markdown`. |
+| `minCompletion` | Object mapping detected locale tags to numeric percentages (0–100). Exact locale match, then `default`, then no gate. CLI `--min` overrides the whole map. |
+
+Unknown fields and invalid types are input errors. `stats` uses `--format` independently of the configured check format.
+
+## Examples
+
+See [the runnable translator project](examples/README.md) for synthetic English, French, German and Russian locales, real command output and a CI snippet.
 
 ## GitHub Actions
 
@@ -167,7 +193,7 @@ Command line options add to the lists in the config file.
 - uses: actions/setup-node@v4
   with:
     node-version: 22
-- run: npx i18n-diff check locales/en.json 'locales/*.json' --format github
+- run: npx --package i18n-json-diff i18n-diff check locales/en.json 'locales/*.json' --format github
 ```
 
 ## Library use
@@ -190,12 +216,30 @@ Also exported: `parseLocaleText`, `exportMissing`, `parseIcu`, `analyze`, `extra
 | 1 | Problems found. |
 | 2 | Usage error, unreadable or invalid source/filled file, bad config. |
 
+## How it works
+
+A position-aware JSON parser keeps each value's original byte range. Checks compare a flattened key map; merge patches only inserted members or replaced values, preserving indentation, line endings, BOM and existing text. Appending a member adds a comma to the previous last line; filling or overwriting a value modifies its line.
+
 ## Limitations
 
-- JSON only. YAML, `.po`, `.properties` and JSON5 (comments, trailing commas) are not supported.
+- JSON only. YAML, `.po`, `.properties` and JSON5 are unsupported. The first comment (`//` or `/*`) or trailing comma is named with its line and column in an `invalid-file` target issue; invalid source files raise `InputError`. Comment markers inside strings are allowed.
 - ICU support covers the syntax and the argument names, not formatting. Unknown argument types are reported as syntax errors.
-- Arrays are flattened with their index as the key (`list.0`).
+- Arrays are flattened with their index as the key (`list.0`). Literal dots are not escaped: `{"a.b":"x"}` and `{"a":{"b":"x"}}` both flatten to `a.b`. Across files these spellings match. Within either file they report `key-collision`; the flat map retains the last visited leaf value. Resolve collisions before export or merge.
+- Duplicate keys are scoped to their containing object: `a.x` and `b.x` are distinct; repeated `x` inside `a` reports `duplicate-key`. Duplicate containers are reported too. The flat map retains the last visited value for repeated leaf paths; duplicate containers may leave earlier child paths in the map. Resolve duplicates before export or merge.
+- Files are processed locally; the CLI makes no network requests and sends no translation data to external services.
 - Punctuation and "untranslated" are heuristics, which is why they are warnings.
+
+## Development
+
+```sh
+npm ci
+npm run lint
+npm test
+npm run bench
+npm pack --dry-run
+```
+
+CI checks Node 20, 22 and 24 on Windows and Linux. The benchmark generates 20,000 keys in memory and measures parsing/check and merge time.
 
 ## Contributing
 

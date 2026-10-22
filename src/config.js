@@ -6,14 +6,15 @@ import { InputError } from './files.js';
 export const CONFIG_FILE = '.i18n-diff.json';
 
 const LIST_FIELDS = ['ignore', 'allowKeys', 'allowValues'];
-const KNOWN_FIELDS = new Set([...LIST_FIELDS, 'sourceLocale', 'warningsAsErrors', 'format']);
+const KNOWN_FIELDS = new Set([...LIST_FIELDS, 'sourceLocale', 'warningsAsErrors', 'format', 'minCompletion']);
 
 /**
  * Loads the optional config file. With no explicit path, `.i18n-diff.json` in
  * the working directory is used when it exists.
  *
  * Fields: ignore, allowKeys, allowValues (string arrays), sourceLocale (string),
- * warningsAsErrors (boolean), format ("text" | "json" | "github").
+ * warningsAsErrors (boolean), format ("text" | "json" | "github" | "markdown"),
+ * minCompletion (locale/default -> percentage).
  */
 export function loadConfig(explicitPath, cwd = process.cwd()) {
   const path = resolve(cwd, explicitPath ?? CONFIG_FILE);
@@ -45,6 +46,16 @@ export function loadConfig(explicitPath, cwd = process.cwd()) {
   }
   if (config.sourceLocale !== undefined && typeof config.sourceLocale !== 'string') {
     throw new InputError('Config field "sourceLocale" must be a string');
+  }
+  if (config.format !== undefined && !['text', 'json', 'github', 'markdown'].includes(config.format)) {
+    throw new InputError('Config field "format" must be text, json, github or markdown');
+  }
+  if (config.minCompletion !== undefined) {
+    const limits = config.minCompletion;
+    if (limits === null || typeof limits !== 'object' || Array.isArray(limits)
+      || Object.values(limits).some((value) => typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 100)) {
+      throw new InputError('Config field "minCompletion" must map locales (or default) to numbers between 0 and 100');
+    }
   }
   return config;
 }

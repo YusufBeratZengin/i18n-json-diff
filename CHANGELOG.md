@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Markdown check reports with a default 200-issue limit and `--max-issues` override; omitted issues still affect exit status.
+- Markdown stats, ascending `--sort completion` and validated per-locale `minCompletion` config thresholds; CLI `--min` overrides the map.
+- `key-collision` errors for ambiguous dotted paths in source and target files, plus nested duplicate/container-key coverage and documented flattening behavior.
+- A synthetic four-locale example project with config, GitHub Actions snippet, real translator-workflow output and an additions-only merge regression test.
+- An in-memory 20,000-key benchmark and a regression test for the 3-second check budget and byte-minimal merge.
+- Public/provenance npm publish configuration, prepublish lint/test checks, tag-triggered OIDC release workflow and maintainer release instructions.
+- Bug and feature issue forms, PR template, Contributor Covenant 2.1 and monthly npm dev-dependency / GitHub Actions updates.
+
+### Changed
+
+- CI now explicitly uses read-only contents permission and covers Node 20, 22 and 24 on Windows and Linux, including package dry-run checks.
+- File errors use plain language for missing files, directories and denied access; JSON errors include line and column, and identify the first unsupported comment or trailing comma. Existing exit codes are preserved.
+- English and Turkish READMEs now share all sections, demo and stats output, API export list and ordinal-plural guidance; include runtime/dependency badges, config schema and runnable examples.
+
+### Fixed
+
+- GitHub annotation paths now use forward slashes and become relative when inside the working directory, including Windows paths.
+- Corrected the Turkish language link to `Türkçe`.
+- Source duplicate keys are now reported as well as target duplicate keys.
+
 ## [0.1.0] - 2026-10-22
 
 ### Added

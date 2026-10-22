@@ -1,0 +1,8 @@
+{
+  "title": "Wolkengarten",
+  "greeting": "Hallo, {name}!",
+  "hint": "Wähle einen <b>Samen</b>.",
+  "items_one": "{{count}} Samen",
+  "items_other": "{{count}} Samen",
+  "footer": "Viel Freude beim Pflanzen!"
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Облачный сад",
+  "greeting": "Привет, {name}!",
+  "hint": "Выберите <b>семя</b>.",
+  "items_one": "{{count}} семя",
+  "items_few": "{{count}} семени",
+  "items_many": "{{count}} семян",
+  "items_other": "{{count}} семени",
+  "footer": "Удачного выращивания!"
+}

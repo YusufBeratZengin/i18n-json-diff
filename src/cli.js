@@ -11,8 +11,10 @@ import {
   countIssues,
   formatGithub,
   formatJson,
+  formatMarkdown,
   formatStatsJson,
   formatStatsText,
+  formatStatsMarkdown,
   formatText,
 } from './report.js';
 
@@ -28,7 +30,8 @@ Usage:
   i18n-diff stats <source.json> <target.json...> [options]
 
 check options:
-  --format <text|json|github>   Output format (default: text)
+  --format <text|json|github|markdown> Output format (default: text)
+  --max-issues <count>          Markdown row limit (default: 200)
   --ignore <checks>             Comma-separated checks to skip
                                 (${CHECKS.join(', ')})
   --warnings-as-errors          Exit 1 on warnings too
@@ -52,7 +55,8 @@ merge options:
   -o, --output <file>           Write the result to another file
 
 stats options:
-  --format <text|json>          Output format (default: text)
+  --format <text|json|markdown> Output format (default: text)
+  --sort <completion>           Lowest completion first
   --min <percent>               Exit 1 when any file is below this completion
   --locale <tag>, --source-locale <tag>, --config <file>
 
@@ -76,15 +80,17 @@ const OPTIONS = {
   overwrite: { type: 'boolean' },
   'dry-run': { type: 'boolean' },
   min: { type: 'string' },
+  sort: { type: 'string' },
+  'max-issues': { type: 'string' },
   help: { type: 'boolean', short: 'h' },
   version: { type: 'boolean', short: 'v' },
 };
 
 const COMMAND_OPTIONS = {
-  check: ['format', 'ignore', 'warnings-as-errors', 'allow-key', 'allow-value', 'locale', 'source-locale', 'config'],
+  check: ['format', 'max-issues', 'ignore', 'warnings-as-errors', 'allow-key', 'allow-value', 'locale', 'source-locale', 'config'],
   'export-missing': ['output', 'only-missing', 'include-untranslated', 'shape', 'locale', 'source-locale', 'ignore', 'allow-key', 'allow-value', 'config'],
   merge: ['source', 'overwrite', 'dry-run', 'output'],
-  stats: ['format', 'min', 'locale', 'source-locale', 'ignore', 'allow-key', 'allow-value', 'config'],
+  stats: ['format', 'min', 'sort', 'locale', 'source-locale', 'ignore', 'allow-key', 'allow-value', 'config'],
 };
 
 /** Expands `*` and `?` in the last path segment; other arguments pass through. */
@@ -143,7 +149,11 @@ function runCheck(positionals, values, config, io) {
   if (targets.length === 0) throw new InputError('No target files to check');
   const options = compareOptions(values, config);
   const format = values.format ?? config.format ?? 'text';
-  if (!['text', 'json', 'github'].includes(format)) throw new InputError(`Unknown format "${format}"`);
+  if (!['text', 'json', 'github', 'markdown'].includes(format)) throw new InputError(`Unknown format "${format}"`);
+  const maxIssues = values['max-issues'] === undefined ? 200 : Number(values['max-issues']);
+  if (!Number.isSafeInteger(maxIssues) || maxIssues < 0 || values['max-issues']?.trim() === '') {
+    throw new InputError('--max-issues must be a non-negative integer');
+  }
 
   const results = targets.map((path) => {
     const loaded = loadTarget(path);
@@ -157,8 +167,8 @@ function runCheck(positionals, values, config, io) {
     }
     return compareFiles(source, loaded.target, options);
   });
-  const render = { text: formatText, json: formatJson, github: formatGithub }[format];
-  io.stdout(render(results));
+  const render = { text: formatText, json: formatJson, github: formatGithub, markdown: formatMarkdown }[format];
+  io.stdout(render(results, { maxIssues }));
   const { errors, warnings } = countIssues(results);
   const strict = values['warnings-as-errors'] ?? config.warningsAsErrors ?? false;
   return errors > 0 || (strict && warnings > 0) ? 1 : 0;
@@ -217,7 +227,8 @@ function runStats(positionals, values, config, io) {
   const targets = expandArgs(targetArgs).filter((path) => resolve(path) !== sourceFull);
   if (targets.length === 0) throw new InputError('No target files');
   const format = values.format ?? 'text';
-  if (!['text', 'json'].includes(format)) throw new InputError(`Unknown format "${format}"`);
+  if (!['text', 'json', 'markdown'].includes(format)) throw new InputError(`Unknown format "${format}"`);
+  if (values.sort !== undefined && values.sort !== 'completion') throw new InputError(`Unknown sort "${values.sort}"`);
   const min = values.min === undefined ? null : Number(values.min);
   if (min !== null && (Number.isNaN(min) || min < 0 || min > 100)) {
     throw new InputError('--min must be a number between 0 and 100');
@@ -227,8 +238,10 @@ function runStats(positionals, values, config, io) {
     const result = compareFiles(source, loadLocaleFile(path), options);
     return { file: path, locale: result.locale, ...result.summary };
   });
-  io.stdout(format === 'json' ? formatStatsJson(rows) : formatStatsText(rows));
-  return min !== null && rows.some((row) => row.percent < min) ? 1 : 0;
+  if (values.sort === 'completion') rows.sort((a, b) => a.percent - b.percent || a.file.localeCompare(b.file));
+  io.stdout(({ json: formatStatsJson, text: formatStatsText, markdown: formatStatsMarkdown })[format](rows));
+  return rows.some((row) => row.percent < (min ?? config.minCompletion?.[row.locale]
+    ?? config.minCompletion?.default ?? 0)) ? 1 : 0;
 }
 
 /**
