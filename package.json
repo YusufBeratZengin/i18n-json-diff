@@ -1,0 +1,56 @@
+{
+  "name": "i18n-json-diff",
+  "version": "0.1.0",
+  "description": "Compare translation JSON files against a source locale: find missing, extra, empty and broken keys, and merge translations back with a byte-minimal diff.",
+  "keywords": [
+    "i18n",
+    "l10n",
+    "translation",
+    "json",
+    "diff",
+    "i18next",
+    "vue-i18n",
+    "icu",
+    "messageformat",
+    "lint"
+  ],
+  "license": "MIT",
+  "author": "Yusuf Berat Zengin",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "i18n-diff": "bin/i18n-diff.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "README.tr.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YusufBeratZengin/i18n-json-diff.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YusufBeratZengin/i18n-json-diff/issues"
+  },
+  "homepage": "https://github.com/YusufBeratZengin/i18n-json-diff#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0"
+  }
+}
