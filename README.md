@@ -2,21 +2,37 @@
 
 [![CI](https://github.com/YusufBeratZengin/i18n-json-diff/actions/workflows/ci.yml/badge.svg)](https://github.com/YusufBeratZengin/i18n-json-diff/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Node >=20](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/) [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json) [![npm](https://img.shields.io/npm/v/i18n-json-diff)](https://www.npmjs.com/package/i18n-json-diff)
 
-Compare translation JSON files with placeholder/ICU/HTML checks, plural categories per locale via `Intl.PluralRules`, and byte-minimal merge. Zero runtime dependencies; runs locally on Node.js >=20. Install: `npm install --save-dev i18n-json-diff`; try `npx --package i18n-json-diff i18n-diff check locales/en.json locales/fr.json`.
+Find broken translation JSON and merge completed translations while preserving existing formatting.
 
 English | [Türkçe](README.tr.md)
 
-- Zero runtime dependencies, Node.js 20 or newer, ESM.
-- Works with nested and flat JSON (vue-i18n, i18next, react-intl, Hoppscotch-style files).
-- Understands i18next plural suffixes (`_one`, `_other`, `_few`, ...), ICU MessageFormat, `{{double}}` placeholders and HTML tags.
-- Output as text, JSON, Markdown, or GitHub Actions annotations.
+![Terminal demo: a check finds 7 errors and 2 warnings in the sample French translations](docs/demo.svg)
 
-## Install
+## Why
+
+- Catch broken messages, not just missing keys: validate placeholders, ICU syntax, HTML tags and the plural categories each locale needs via `Intl.PluralRules`.
+- Keep translation reviews small: merge by patching the original JSON text, preserving indentation, line endings and existing translations.
+- Run locally with zero runtime dependencies: nested and flat JSON, Node.js >=20, and text, JSON, Markdown or GitHub Actions output.
+
+## Quick start
+
+Try the included synthetic locales from a checkout; no install is needed for the CLI:
+
+```sh
+git clone https://github.com/YusufBeratZengin/i18n-json-diff.git
+cd i18n-json-diff
+node bin/i18n-diff.js check test/fixtures/en.json test/fixtures/ru.json
+node bin/i18n-diff.js check test/fixtures/en.json test/fixtures/fr.json
+```
+
+The Russian sample passes (exit `0`). The French sample deliberately contains problems (exit `1`); its actual output is shown below.
+
+For your own project, install the package once it is available on npm:
 
 ```sh
 npm install --save-dev i18n-json-diff
 # or run it once
-npx i18n-json-diff check locales/en.json locales/*.json
+npx --package i18n-json-diff i18n-diff check locales/en.json 'locales/*.json'
 ```
 
 To install the current GitHub version:
@@ -155,7 +171,7 @@ The config can set `minCompletion` per locale, with a `default` fallback. Comple
 
 Keys such as `item_one` / `item_other` are treated as a plural group when the source has an `_other` form plus at least one more form. The target is then expected to contain exactly the categories its language needs, taken from `Intl.PluralRules` (Russian: `one`, `few`, `many`, `other`; Japanese: `other`). The locale comes from the file name or `--locale`; if it cannot be determined, the forms of the source are expected. Ordinal groups (`key_ordinal_one`) use ordinal rules. In plural forms, placeholders may be dropped relative to the `_other` form (a "one" form often says "one item"), but unknown placeholders are still reported.
 
-## Config file
+## Configuration
 
 `.i18n-diff.json` (all fields optional):
 
@@ -183,7 +199,7 @@ Command line options add to the lists in the config file.
 
 Unknown fields and invalid types are input errors. `stats` uses `--format` independently of the configured check format.
 
-## Examples
+## Usage examples
 
 See [the runnable translator project](examples/README.md) for synthetic English, French, German and Russian locales, real command output and a CI snippet.
 
@@ -220,7 +236,15 @@ Also exported: `parseLocaleText`, `exportMissing`, `parseIcu`, `analyze`, `extra
 
 A position-aware JSON parser keeps each value's original byte range. Checks compare a flattened key map; merge patches only inserted members or replaced values, preserving indentation, line endings, BOM and existing text. Appending a member adds a comma to the previous last line; filling or overwriting a value modifies its line.
 
-## Limitations
+## FAQ / Limitations
+
+**Why does the demo exit with code 1?** It contains intentionally broken translations. Use `--ignore` for checks you do not need; use `--warnings-as-errors` to make warnings fail CI too.
+
+**Can brand names stay untranslated?** Yes. Add `allowKeys` or `allowValues` to the config, or use `--allow-key` / `--allow-value`.
+
+**Does this translate messages automatically?** No. `export-missing` prepares source text for translation; `merge` inserts the completed translations.
+
+**What formats and edge cases are supported?**
 
 - JSON only. YAML, `.po`, `.properties` and JSON5 are unsupported. The first comment (`//` or `/*`) or trailing comma is named with its line and column in an `invalid-file` target issue; invalid source files raise `InputError`. Comment markers inside strings are allowed.
 - ICU support covers the syntax and the argument names, not formatting. Unknown argument types are reported as syntax errors.
@@ -235,11 +259,14 @@ A position-aware JSON parser keeps each value's original byte range. Checks comp
 npm ci
 npm run lint
 npm test
+npm run demo
 npm run bench
 npm pack --dry-run
 ```
 
-CI checks Node 20, 22 and 24 on Windows and Linux. The benchmark generates 20,000 keys in memory and measures parsing/check and merge time.
+`npm test` prints Node's built-in line, branch and function coverage report in the terminal and CI. This plain JavaScript project has no separate typecheck command; ESLint checks the source. CI checks Node 20, 22 and 24 on Windows and Linux. The benchmark generates 20,000 keys in memory and measures parsing/check and merge time.
+
+`npm run demo` regenerates `docs/demo.svg` from the CLI entry point using the command above. CI runs `node scripts/make-demo.mjs --check` to catch stale images. The full output remains available as text in the Demo section.
 
 ## Contributing
 

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="487" viewBox="0 0 1100 487" role="img" aria-labelledby="title description">
+  <title id="title">i18n-json-diff terminal demo</title>
+  <desc id="description">A real check of synthetic French translations: 7 errors and 2 warnings. The full command and output are also available as text in the README.</desc>
+  <rect width="1100" height="487" rx="16" fill="#0d1117"/>
+  <path d="M16 0h1068a16 16 0 0 1 16 16v32H0V16A16 16 0 0 1 16 0" fill="#21262d"/>
+  <circle cx="28" cy="24" r="6" fill="#ff5f57"/>
+  <circle cx="50" cy="24" r="6" fill="#febc2e"/>
+  <circle cx="72" cy="24" r="6" fill="#28c840"/>
+  <text x="550" y="29" text-anchor="middle" fill="#a5b0be" font-family="monospace" font-size="13">i18n-json-diff · check</text>
+  <g font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="16" xml:space="preserve">
+    <text x="28" y="85" fill="#7ee7c5">$ node bin/i18n-diff.js check test/fixtures/en.json test/fixtures/fr.json</text>
+    <text x="28" y="108" fill="#e6edf3"></text>
+    <text x="28" y="131" fill="#e6edf3">test/fixtures/fr.json (fr)</text>
+    <text x="28" y="154" fill="#e6edf3">  -     error    missing       app.title     Missing key (source: &quot;My App&quot;)</text>
+    <text x="28" y="177" fill="#e6edf3">  3:5   error    placeholder   app.greeting  Placeholder mismatch: missing {name}; unexpected {nom}</text>
+    <text x="28" y="200" fill="#e6edf3">  4:5   error    empty         app.save      Translation is empty</text>
+    <text x="28" y="223" fill="#e6edf3">  5:5   error    html-tag      app.intro     HTML tag mismatch: missing &lt;b&gt;, &lt;/b&gt;</text>
+    <text x="28" y="246" fill="#f2cc60">  6:5   warning  untranslated  app.ok        Translation is identical to the source</text>
+    <text x="28" y="269" fill="#e6edf3">  10:5  error    icu-syntax    cart.items    ICU syntax error: Unclosed &apos;{&apos;</text>
+    <text x="28" y="292" fill="#f2cc60">  11:5  warning  punctuation   cart.welcome  Trailing punctuation differs: source ends with &quot;.&quot;,</text>
+    <text x="28" y="315" fill="#e6edf3">    translation with no punctuation</text>
+    <text x="28" y="338" fill="#e6edf3">  -     error    missing       msg_many      Missing key (source: &quot;{{count}} messages&quot;)</text>
+    <text x="28" y="361" fill="#e6edf3">  7:5   error    extra         app.old       Key does not exist in the source</text>
+    <text x="28" y="384" fill="#e6edf3"></text>
+    <text x="28" y="407" fill="#f2cc60">  7 errors, 2 warnings</text>
+    <text x="28" y="430" fill="#e6edf3"></text>
+    <text x="28" y="453" fill="#f2cc60">1 file checked: 7 errors, 2 warnings</text>
+  </g>
+</svg>

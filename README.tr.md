@@ -2,21 +2,37 @@
 
 [![CI](https://github.com/YusufBeratZengin/i18n-json-diff/actions/workflows/ci.yml/badge.svg)](https://github.com/YusufBeratZengin/i18n-json-diff/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Node >=20](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/) [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json) [![npm](https://img.shields.io/npm/v/i18n-json-diff)](https://www.npmjs.com/package/i18n-json-diff)
 
-Çeviri JSON dosyalarını kaynak dille karşılaştırır: yer tutucu/ICU/HTML kontrolleri yapar, `Intl.PluralRules` ile her dilin çoğul kategorilerini doğrular ve çevirileri bayt düzeyinde en az değişiklikle birleştirir. Çalışma zamanı bağımlılığı yoktur; Node.js >=20 ile yerel olarak çalışır. Kurulum: `npm install --save-dev i18n-json-diff`; denemek için: `npx --package i18n-json-diff i18n-diff check locales/en.json locales/fr.json`.
+Çeviri JSON dosyalarındaki hataları bulur ve tamamlanan çevirileri mevcut biçimlendirmeyi koruyarak birleştirir.
 
 [English](README.md) | Türkçe
 
-- Çalışma zamanı bağımlılığı yok, Node.js 20 ve üzeri, ESM.
-- İç içe ve düz (flat) JSON ile çalışır (vue-i18n, i18next, react-intl, Hoppscotch tarzı dosyalar).
-- i18next çoğul ekleri (`_one`, `_other`, `_few` ...), ICU MessageFormat, `{{çift}}` yer tutucular ve HTML etiketlerini tanır.
-- Çıktı: düz metin, JSON, Markdown veya GitHub Actions bildirimleri.
+![Terminal demosu: örnek Fransızca çevirilerde 7 hata ve 2 uyarı bulunuyor](docs/demo.svg)
 
-## Kurulum
+## Neden?
+
+- Eksik anahtarların yanında hatalı mesajları da yakalar: yer tutucuları, ICU sözdizimini, HTML etiketlerini ve `Intl.PluralRules` ile her dilin gerektirdiği çoğul kategorilerini denetler.
+- Çeviri incelemelerini sade tutar: özgün JSON metnini yerinde güncelleyerek girintiyi, satır sonlarını ve mevcut çevirileri korur.
+- Çalışma zamanı bağımlılığı olmadan yerel çalışır: iç içe ve düz JSON, Node.js >=20; düz metin, JSON, Markdown veya GitHub Actions çıktısı.
+
+## Hızlı başlangıç
+
+Depoyu klonlayıp örnek dosyalarla deneyin; CLI için kurulum gerekmez:
+
+```sh
+git clone https://github.com/YusufBeratZengin/i18n-json-diff.git
+cd i18n-json-diff
+node bin/i18n-diff.js check test/fixtures/en.json test/fixtures/ru.json
+node bin/i18n-diff.js check test/fixtures/en.json test/fixtures/fr.json
+```
+
+Rusça örnek kontrolden geçer (çıkış `0`). Fransızca örnek bilerek hatalıdır (çıkış `1`); gerçek çıktısı aşağıdadır.
+
+Kendi projenizde kullanmak için paket npm'de yayımlandığında kurabilirsiniz:
 
 ```sh
 npm install --save-dev i18n-json-diff
 # ya da tek seferlik
-npx i18n-json-diff check locales/en.json locales/*.json
+npx --package i18n-json-diff i18n-diff check locales/en.json 'locales/*.json'
 ```
 
 GitHub'daki güncel sürümü kurmak için:
@@ -28,6 +44,8 @@ Komutun adı `i18n-diff`.
 
 ```sh
 node bin/i18n-diff.js check test/fixtures/en.json test/fixtures/fr.json
+```
+
 ```text
 test/fixtures/fr.json (fr)
   -     error    missing       app.title     Missing key (source: "My App")
@@ -43,8 +61,6 @@ test/fixtures/fr.json (fr)
   7 errors, 2 warnings
 
 1 file checked: 7 errors, 2 warnings
-```
-
 ```
 
 Çevirmen için iş akışı:
@@ -155,7 +171,7 @@ Ayar dosyasında `minCompletion` ile dile özel eşik ve `default` yedek değeri
 
 `item_one` / `item_other` gibi anahtarlar, kaynakta `_other` biçimi ve en az bir başka biçim varsa çoğul grubu sayılır. Hedefte o dilin ihtiyaç duyduğu kategoriler beklenir; bunlar `Intl.PluralRules`'tan gelir (Rusça: `one`, `few`, `many`, `other`; Japonca: `other`). Dil, dosya adından ya da `--locale`'den alınır; bulunamazsa kaynağın biçimleri beklenir. Sıra sayısı grupları (`key_ordinal_one`) ordinal kuralları kullanır. Çoğul biçimlerde `_other` biçimine göre yer tutucu eksik olabilir ("bir öğe" gibi), ama bilinmeyen yer tutucu yine raporlanır.
 
-## Ayar dosyası
+## Yapılandırma
 
 `.i18n-diff.json` (tüm alanlar isteğe bağlı):
 
@@ -183,7 +199,7 @@ Komut satırı seçenekleri, ayar dosyasındaki listelere eklenir.
 
 Bilinmeyen alanlar ve geçersiz türler girdi hatasıdır. `stats`, ayarlardaki check biçiminden bağımsız olarak `--format` kullanır.
 
-## Örnekler
+## Kullanım örnekleri
 
 Sentetik İngilizce, Fransızca, Almanca ve Rusça dosyalar, gerçek komut çıktıları ve CI örneği için [çalıştırılabilir çevirmen projesine](examples/README.md) bakın.
 
@@ -220,7 +236,15 @@ Diğer dışa aktarımlar: `parseLocaleText`, `exportMissing`, `parseIcu`, `anal
 
 Konum bilgisi tutan JSON ayrıştırıcısı, her değerin özgün metindeki aralığını saklar. Kontroller düzleştirilmiş anahtar haritasını karşılaştırır; merge yalnızca yeni üyeleri ekler veya değişen değerleri yerinde günceller. Girinti, satır sonları, BOM ve mevcut metin korunur. Sona üye eklemek önceki son satıra virgül ekler; boş değer doldurmak veya üzerine yazmak ilgili satırı değiştirir.
 
-## Sınırlar
+## Sık sorulanlar / Sınırlar
+
+**Demo neden 1 çıkış koduyla bitiyor?** Örnek dosyada bilerek hatalı çeviriler var. İhtiyaç duymadığınız kontrolleri `--ignore` ile atlayabilir, uyarıların da CI'ı durdurmasını `--warnings-as-errors` ile sağlayabilirsiniz.
+
+**Marka adları çevrilmeden kalabilir mi?** Evet. Ayarlara `allowKeys` veya `allowValues` ekleyin ya da `--allow-key` / `--allow-value` kullanın.
+
+**Mesajları otomatik çeviriyor mu?** Hayır. `export-missing` kaynak metinleri çeviri için hazırlar; `merge` tamamlanmış çevirileri dosyaya ekler.
+
+**Hangi biçimler ve özel durumlar destekleniyor?**
 
 - Yalnızca JSON. YAML, `.po`, `.properties` ve JSON5 desteklenmez. İlk yorum (`//` veya `/*`) ya da sondaki virgül, satır ve sütunuyla hedefte `invalid-file` sorunu üretir; geçersiz kaynak dosyası `InputError` fırlatır. Metin değerlerinin içindeki yorum işaretleri serbesttir.
 - ICU desteği sözdizimini ve argüman adlarını kapsar, biçimlendirmeyi değil. Bilinmeyen argüman türleri sözdizimi hatası sayılır.
@@ -235,11 +259,14 @@ Konum bilgisi tutan JSON ayrıştırıcısı, her değerin özgün metindeki ara
 npm ci
 npm run lint
 npm test
+npm run demo
 npm run bench
 npm pack --dry-run
 ```
 
-CI, Windows ve Linux üzerinde Node 20, 22 ve 24 ile çalışır. Benchmark bellekte 20.000 anahtar üretir; ayrıştırma/check ve merge sürelerini ölçer.
+`npm test`, Node'un yerleşik satır, dal ve fonksiyon kapsam raporunu terminalde ve CI'da gösterir. Proje sade JavaScript kullanır; ayrı bir typecheck komutu yoktur, kaynak kod ESLint ile denetlenir. CI, Windows ve Linux üzerinde Node 20, 22 ve 24 ile çalışır. Benchmark bellekte 20.000 anahtar üretir; ayrıştırma/check ve merge sürelerini ölçer.
+
+`npm run demo`, yukarıdaki komutu CLI giriş noktası üzerinden çalıştırarak `docs/demo.svg` görselini yeniden üretir. CI, güncelliğini `node scripts/make-demo.mjs --check` ile doğrular. Tam çıktı Demo bölümünde metin olarak da bulunur.
 
 ## Katkı
 

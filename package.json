@@ -28,6 +28,7 @@
   "files": [
     "bin",
     "src",
+    "docs/demo.svg",
     "README.md",
     "README.tr.md",
     "CHANGELOG.md",
@@ -37,8 +38,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test",
+    "test": "node --experimental-test-coverage --test",
     "lint": "eslint .",
+    "demo": "node scripts/make-demo.mjs",
     "prepublishOnly": "npm run lint && npm test",
     "bench": "node scripts/bench.mjs"
   },

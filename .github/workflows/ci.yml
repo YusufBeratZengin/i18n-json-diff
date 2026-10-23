@@ -30,4 +30,5 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+      - run: node scripts/make-demo.mjs --check
       - run: npm pack --dry-run

@@ -7,10 +7,17 @@ Thanks for helping. This project is small on purpose: zero runtime dependencies,
 ```sh
 git clone https://github.com/YusufBeratZengin/i18n-json-diff.git
 cd i18n-json-diff
-npm install
+npm ci
 npm test
 npm run lint
 ```
+
+`npm test` also prints Node's built-in line, branch and function coverage report.
+Review uncovered production code and add behavior-focused tests when line coverage
+falls below 85%. There is no separate typecheck command in this plain JavaScript project.
+
+When changing CLI output or the demo fixtures, run `npm run demo` and update both
+README output blocks. `node scripts/make-demo.mjs --check` verifies the SVG is current.
 
 ## Layout
 
