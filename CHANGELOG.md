@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- A runnable programmatic API example (`examples/api.mjs`) demonstrating library usage for loading, comparing, exporting missing keys, and merging translations.
+- Turkish documentation for examples (`examples/README.tr.md`), contributing guidelines (`CONTRIBUTING.tr.md`), and security policy (`SECURITY.tr.md`).
+- A documentation issue template (`.github/ISSUE_TEMPLATE/documentation.yml`) for reporting inaccuracies and requesting documentation updates.
+- Unit tests for config validation errors, CLI glob errors on missing directories, JSON AST empty array parsing, nested export key collisions, ICU quote edge cases, and compact single-line object merge formatting.
 - A reproducible terminal SVG demo captured from the real CLI, embedded in both READMEs, with a CI freshness check.
 - Built-in Node.js test coverage reporting in local and CI test output, without additional dependencies.
 - Weekly CodeQL JavaScript analysis on pushes and pull requests.

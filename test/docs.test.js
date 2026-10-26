@@ -31,3 +31,19 @@ test('English and Turkish READMEs have the same heading structure and real demo 
     for (const text of [en, tr]) assert.ok(text.includes(`\n${stdout.trimEnd()}\n`));
   }
 });
+
+test('English and Turkish contributing and security documents have matching structure and links', () => {
+  const contribEn = readme('CONTRIBUTING.md');
+  const contribTr = readme('CONTRIBUTING.tr.md');
+  assert.deepEqual(headings(contribTr), headings(contribEn));
+  assert.ok(contribEn.includes('[Türkçe](CONTRIBUTING.tr.md)'));
+  assert.ok(contribTr.includes('[English](CONTRIBUTING.md)'));
+
+  const secEn = readme('SECURITY.md');
+  const secTr = readme('SECURITY.tr.md');
+  assert.deepEqual(headings(secTr), headings(secEn));
+  assert.ok(secEn.includes('[Türkçe](SECURITY.tr.md)'));
+  assert.ok(secTr.includes('[English](SECURITY.md)'));
+
+  assert.doesNotMatch(contribEn + contribTr + secEn + secTr, /Turkce/);
+});

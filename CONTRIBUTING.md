@@ -1,5 +1,7 @@
 # Contributing
 
+English | [Türkçe](CONTRIBUTING.tr.md)
+
 Thanks for helping. This project is small on purpose: zero runtime dependencies, Node.js 20 or newer, plain ESM.
 
 ## Setup
@@ -26,9 +28,12 @@ README output blocks. `node scripts/make-demo.mjs --check` verifies the SVG is c
 | `src/json-ast.js` | Position-aware JSON parser (offsets are what make byte-minimal merges possible). |
 | `src/files.js` | Loads a locale file into a flat key view plus the AST. |
 | `src/icu.js`, `src/messages.js` | ICU tokenizer, placeholder, HTML tag and punctuation helpers. |
+| `src/locale.js`, `src/plural.js` | Locale detection, BCP 47 canonicalization and plural category helpers. |
 | `src/compare.js` | The checks. |
+| `src/config.js` | Configuration file loading and schema validation. |
 | `src/merge.js`, `src/export.js` | `merge` and `export-missing`. |
 | `src/cli.js`, `src/report.js` | Command line, output formats. |
+| `examples/` | Synthetic sample project with CLI workflow, CI configuration and programmatic API example. |
 | `test/` | `node:test` tests; `test/fixtures/` holds sample locale files. |
 
 ## Guidelines

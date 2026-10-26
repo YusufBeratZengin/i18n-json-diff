@@ -48,3 +48,24 @@ test('example translator workflow matches documented output and has an additions
     rmSync(tmp, { recursive: true, force: true });
   }
 });
+
+test('example programmatic API runs successfully and matches expected output', () => {
+  const result = spawnSync(process.execPath, [join(example, 'api.mjs')], {
+    cwd: example,
+    encoding: 'utf8',
+  });
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+  assert.match(result.stdout, /Completion: 71\.4%/);
+  assert.match(result.stdout, /Issues found: 2/);
+  assert.match(result.stdout, /Exported 2 missing keys/);
+  assert.match(result.stdout, /Merge summary: added 2, filled 0/);
+});
+
+test('Turkish examples README matches English structure and documented commands', () => {
+  const en = readFileSync(join(example, 'README.md'), 'utf8');
+  const tr = readFileSync(join(example, 'README.tr.md'), 'utf8');
+  const getHeadings = (text) => text.split('\n').filter((line) => line.startsWith('#')).map((line) => line.match(/^#+/)[0].length);
+  assert.deepEqual(getHeadings(tr), getHeadings(en));
+  assert.ok(en.includes('[Türkçe](README.tr.md)'));
+  assert.ok(tr.includes('[English](README.md)'));
+});

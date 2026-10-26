@@ -1,5 +1,7 @@
 # Cloud Garden translator workflow
 
+English | [Türkçe](README.tr.md)
+
 All strings in this example describe a fictional garden interface. No external
 service is contacted. Start from the repository root, then run `cd examples`.
 These commands use the local CLI, so no package installation is needed.
@@ -86,3 +88,11 @@ See [github-actions.yml](github-actions.yml) for a consuming project's workflow.
 It assumes the project has this package installed as a dev dependency and a
 lockfile. The snippet checks the project's `locales/` directory; when adapting
 it for this repository, use `examples/locales/` and the local `bin/i18n-diff.js`.
+
+## Programmatic API
+
+Run the library example from this directory:
+
+```sh
+node api.mjs
+```

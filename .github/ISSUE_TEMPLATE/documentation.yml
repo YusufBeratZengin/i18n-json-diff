@@ -1,0 +1,30 @@
+name: Documentation
+description: Suggest improvements or report inaccuracies in the documentation.
+labels: [documentation]
+body:
+  - type: checkboxes
+    id: searched
+    attributes:
+      label: Existing issues
+      options:
+        - label: I searched existing issues.
+          required: true
+  - type: textarea
+    id: page
+    attributes:
+      label: Relevant page or section
+      description: Link to the file or heading (e.g. README.md, README.tr.md, examples/).
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Description of the problem or suggestion
+      description: What is inaccurate, missing, or unclear?
+    validations:
+      required: true
+  - type: textarea
+    id: suggested_change
+    attributes:
+      label: Suggested change
+      description: How should the documentation read instead?

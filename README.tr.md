@@ -201,7 +201,7 @@ Bilinmeyen alanlar ve geçersiz türler girdi hatasıdır. `stats`, ayarlardaki 
 
 ## Kullanım örnekleri
 
-Sentetik İngilizce, Fransızca, Almanca ve Rusça dosyalar, gerçek komut çıktıları ve CI örneği için [çalıştırılabilir çevirmen projesine](examples/README.md) bakın.
+Sentetik İngilizce, Fransızca, Almanca ve Rusça dosyalar, gerçek komut çıktıları ve CI örneği için [çalıştırılabilir çevirmen projesine](examples/README.tr.md) bakın.
 
 ## GitHub Actions
 

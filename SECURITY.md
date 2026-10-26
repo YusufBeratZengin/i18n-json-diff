@@ -1,5 +1,7 @@
 # Security Policy
 
+English | [Türkçe](SECURITY.tr.md)
+
 ## Supported versions
 
 Only the latest release receives security fixes.
