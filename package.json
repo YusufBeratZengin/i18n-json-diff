@@ -53,8 +53,8 @@
   },
   "homepage": "https://github.com/YusufBeratZengin/i18n-json-diff#readme",
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
-    "eslint": "^9.39.5",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
     "globals": "^17.13.0"
   },
   "publishConfig": {
